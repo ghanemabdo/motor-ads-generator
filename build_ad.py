@@ -147,6 +147,7 @@ def draw_text_to_img(img, text, font_file, font_size, color, x, y, fit_size):
     draw = ImageDraw.Draw(img)
     if os.path.exists(font_file):
         font = get_max_font_size(font_file, text, fit_size)
+        draw.rectangle(((x,y), (x + fit_size[0], y + fit_size[1])), fill="yellow")
         x, y = get_text_centered_position(font.getsize(text), fit_size, x, y)
         draw.text((x, y), text, tuple(color), font=font)
     return img

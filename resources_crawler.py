@@ -36,7 +36,7 @@ def extract_info(url):
     info_dict = {}
 
     info_dict["mileage"] = milage
-    info_dict["model"] = model
+    info_dict["model"] = model.replace("Used", "").replace("مستعملة", "").strip()
     info_dict["price"] = price.replace("QAR", "").strip()
     if len(tel_nums) > 0:
         info_dict["tel"] = "+974 " + tel_nums[0]
