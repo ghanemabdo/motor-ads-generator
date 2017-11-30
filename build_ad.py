@@ -163,7 +163,14 @@ def get_post_text(post_data_dict, text_dict):
     return ""
 
 
-def render_text_to_img(template, text_desc, img_texts):
+def render_text_to_img(template, text_desc, img_texts, post_folder):
+
+    if "post_folder" in text_desc:
+        pf = text_desc["post_folder"] + "/"
+        img_texts = load_json(post_folder + pf.replace("//", "/") + "data.json")
+    if img_texts is None:
+        return
+
     text = get_post_text(img_texts, text_desc)
     font_file = text_desc["font_file"]
     font_color = bytes.fromhex(text_desc["font_color"][1:])
@@ -175,12 +182,21 @@ def render_text_to_img(template, text_desc, img_texts):
     return draw_text_to_img(template, text, font_file, font_size, font_color, x, y, (max_width, max_height))
 
 
+def images_generated_before(desc_file, desc_dict, post_folder):
+    for ext in desc_dict["save_formats"]:
+        f = os.path.basename(desc_file)
+        f, e = os.path.splitext(f)
+        if os.path.exists(post_folder + f + ext) is False:
+            return False
+    return True
+
+
 def create_post_img(desc_dict, post_folder):
     template = open_template(desc_dict["template"])
     template_overlay = open_template_overlay(desc_dict["template_overlay"])
 
     if template is None or template_overlay is None:
-        return
+        return False
 
     for img_desc in desc_dict["images"]:
         if os.path.exists(post_folder + img_desc["file"]):
@@ -190,11 +206,17 @@ def create_post_img(desc_dict, post_folder):
 
     template = paste_img(template, template_overlay, 0, 0)
 
+    posts = set()
+    for img_desc in desc_dict["images"]:
+        path_comps = img_desc["file"].split("/")
+        if len(path_comps) > 1:
+            posts.add(path_comps[0])
+
     img_texts = load_json(post_folder + "data.json")
 
-    if img_texts is not None:
+    if img_texts is not None or len(posts) > 0:
         for text_desc in desc_dict["captions"]:
-            render_text_to_img(template, text_desc, img_texts)
+            render_text_to_img(template, text_desc, img_texts, post_folder)
 
     return template
 
@@ -206,11 +228,18 @@ def save_img(img, post_folder, fname, formats):
                 img.save(post_folder + fname + "." + ext)
 
 
+def image_exists(img_desc, post_folder, ext=".jpg"):
+    f = os.path.basename(img_desc)
+    f, e = os.path.splitext(f)
+
+    return os.path.exists(post_folder + f + ext)
+
+
 def copy_img_if_exists(img_desc, post_folder, video_name, fname):
     f = os.path.basename(img_desc)
     f, e = os.path.splitext(f)
 
-    if os.path.exists(post_folder + f + ".jpg"):
+    if image_exists(img_desc, post_folder):
         copyfile(post_folder + f + ".jpg", post_folder + video_name + "/" + fname + ".jpg")
         return True
     else:
@@ -239,7 +268,7 @@ def create_post_video(desc_dict, post_folder):
                 copy_descriptor_file(img_desc, post_folder)
                 if not copy_img_if_exists(img_desc, post_folder, video["name"], str(counter)):
                     img_dict = load_json(post_folder + img_desc)
-                    img = create_post_img(img_dict, post_folder + video["name"])
+                    img = create_post_img(img_dict, post_folder)
                     if img is False:
                         continue
                     f, e = os.path.splitext(img_desc)
@@ -268,15 +297,17 @@ if __name__ == "__main__":
 
     index_dict = read_index(index_file)
 
+    date_folder = datetime.datetime.now().strftime("%Y/%m/%d/")
+
     for post_folder in index_dict:
         for desc_file in index_dict[post_folder]:
-            post_folder_with_date = datetime.datetime.now().strftime("%Y/%m/%d/") + post_folder
+            post_folder_with_date = date_folder + post_folder.replace(".", "")
             copy_descriptor_file(desc_file, post_folder_with_date)
             desc_dict = read_descriptor(post_folder_with_date + desc_file)
             filename, ex = os.path.splitext(desc_file)
-
-            post_img_combined = create_post_img(desc_dict, post_folder_with_date)
-            if post_img_combined is not False:
-                save_img(post_img_combined, post_folder_with_date, filename, desc_dict["save_formats"])
+            if images_generated_before(desc_file, desc_dict, post_folder_with_date) is False:
+                post_img_combined = create_post_img(desc_dict, post_folder_with_date)
+                if post_img_combined is not False:
+                    save_img(post_img_combined, post_folder_with_date, filename, desc_dict["save_formats"])
 
             create_post_video(desc_dict, post_folder_with_date)

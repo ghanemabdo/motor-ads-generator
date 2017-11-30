@@ -8,8 +8,8 @@
 		"y": 100,
 		"crop_width": 988,
 		"crop_height": 759,
-		"fit_width": 588,
-		"fit_height": 459,
+		"fit_width": 988,
+		"fit_height": 759,
 		"opacity": 1.0
 	    },
 	    {
@@ -18,8 +18,8 @@
 		"y": 200,
 		"crop_width": 988,
 		"crop_height": 759,
-		"fit_width": 288,
-		"fit_height": 259,
+		"fit_width": 988,
+		"fit_height": 759,
 		"opacity": 1.0
 	    },
 	    {
@@ -28,8 +28,8 @@
 		"y": 200,
 		"crop_width": 988,
 		"crop_height": 759,
-		"fit_width": 588,
-		"fit_height": 359,
+		"fit_width": 988,
+		"fit_height": 759,
 		"opacity": 1.0
 	}],
 	"captions": [{

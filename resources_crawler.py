@@ -39,7 +39,7 @@ def extract_info(url):
     info_dict["model"] = model
     info_dict["price"] = price.replace("QAR", "").strip()
     if len(tel_nums) > 0:
-        info_dict["tel"] = tel_nums[0]
+        info_dict["tel"] = "+974 " + tel_nums[0]
 
     print(info_dict)
 
@@ -58,6 +58,7 @@ def extract_imgs(url):
     page = requests.get(url)
     tree = html.fromstring(page.content)
     imgs = tree.xpath('//img[@class="img-responsive"]/@src')
+    del imgs[0]
     fixed_img_urls = []
 
     for img in imgs:
