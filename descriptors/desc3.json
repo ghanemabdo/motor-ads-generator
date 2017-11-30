@@ -3,7 +3,7 @@
 	"template_overlay": "templates/template-Instagram-Post-overlay.png",
 	"size": [1000, 1000],
 	"images": [{
-		"file": "4.jpg",
+		"file": "11.jpg",
 		"x": 0,
 		"y": 100,
 		"crop_width": 988,
@@ -17,8 +17,8 @@
 			"lang": "en",
 			"x": 755,
 			"y": 135,
-			"width": 300,
-			"height": 400,
+			"width": 100,
+			"height": 30,
 			"font_file": "arial.ttf",
 			"font_color": "#ffffff",
 			"font_size": 27
@@ -28,6 +28,8 @@
 			"lang": "en",
 			"x": 480,
 			"y": 830,
+			"width": 100,
+			"height": 30,
 			"font_file": "arial.ttf",
 			"font_color": "#ffffff",
 			"font_size": 25
@@ -37,6 +39,8 @@
 			"lang": "en",
 			"x": 130,
 			"y": 30,
+			"width": 100,
+			"height": 30,
 			"font_file": "arial.ttf",
 			"font_color": "#ffffff",
 			"font_size": 28
@@ -46,6 +50,8 @@
 			"lang": "ar",
 			"x": 130,
 			"y": 55,
+			"width": 100,
+			"height": 30,
 			"font_file": "arial.ttf",
 			"font_color": "#ffffff",
 			"font_size": 25
@@ -55,6 +61,8 @@
 			"lang": "en",
 			"x": 744,
 			"y": 916,
+			"width": 100,
+			"height": 30,
 			"font_file": "arial.ttf",
 			"font_color": "#000000",
 			"font_size": 38

@@ -43,6 +43,25 @@ def fix_arabic_text(text):
     return get_display(arabic_reshaper.reshape(text))
 
 
+def get_max_font_size(font_file, text, fit_size):
+    font_size = 8
+    font = ImageFont.truetype(font_file, font_size)
+    width, height = font.getsize(text)
+    while width < fit_size[0] and height < fit_size[1]:
+        font_size += 1
+        font = ImageFont.truetype(font_file, font_size)
+        width, height = font.getsize(text)
+
+    return ImageFont.truetype(font_file, font_size - 1)
+
+
+def get_text_centered_position(font_size, fit_size, x , y):
+    new_x = x + ((fit_size[0] - font_size[0]) / 2)
+    new_y = y + ((fit_size[1] - font_size[1]) / 2)
+
+    return (new_x , new_y)
+
+
 def load_json(jsonfile):
     if os.path.exists(jsonfile):
         with open(jsonfile, "r") as jsonf:
@@ -124,10 +143,11 @@ def add_img_to_template(post_folder, template, img_desc):
     return paste_img(template, post_img, img_desc["x"], img_desc["y"])
 
 
-def draw_text_to_img(img, text, font_file, font_size, color, x, y):
+def draw_text_to_img(img, text, font_file, font_size, color, x, y, fit_size):
     draw = ImageDraw.Draw(img)
     if os.path.exists(font_file):
-        font = ImageFont.truetype(font_file, font_size)
+        font = get_max_font_size(font_file, text, fit_size)
+        x, y = get_text_centered_position(font.getsize(text), fit_size, x, y)
         draw.text((x, y), text, tuple(color), font=font)
     return img
 
@@ -150,7 +170,9 @@ def render_text_to_img(template, text_desc, img_texts):
     font_size = text_desc["font_size"]
     x = text_desc["x"]
     y = text_desc["y"]
-    return draw_text_to_img(template, text, font_file, font_size, font_color, x, y)
+    max_width = text_desc["width"]
+    max_height = text_desc["height"]
+    return draw_text_to_img(template, text, font_file, font_size, font_color, x, y, (max_width, max_height))
 
 
 def create_post_img(desc_dict, post_folder):
@@ -163,6 +185,8 @@ def create_post_img(desc_dict, post_folder):
     for img_desc in desc_dict["images"]:
         if os.path.exists(post_folder + img_desc["file"]):
             add_img_to_template(post_folder, template, img_desc)
+        else:
+            return False
 
     template = paste_img(template, template_overlay, 0, 0)
 
@@ -216,6 +240,8 @@ def create_post_video(desc_dict, post_folder):
                 if not copy_img_if_exists(img_desc, post_folder, video["name"], str(counter)):
                     img_dict = load_json(post_folder + img_desc)
                     img = create_post_img(img_dict, post_folder + video["name"])
+                    if img is False:
+                        continue
                     f, e = os.path.splitext(img_desc)
                     save_img(img, post_folder + video["name"] + "/", str(counter), ["jpg"])
                 counter += 1
@@ -250,6 +276,7 @@ if __name__ == "__main__":
             filename, ex = os.path.splitext(desc_file)
 
             post_img_combined = create_post_img(desc_dict, post_folder_with_date)
-            save_img(post_img_combined, post_folder_with_date, filename, desc_dict["save_formats"])
+            if post_img_combined is not False:
+                save_img(post_img_combined, post_folder_with_date, filename, desc_dict["save_formats"])
 
             create_post_video(desc_dict, post_folder_with_date)
